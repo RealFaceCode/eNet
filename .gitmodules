@@ -1,0 +1,4 @@
+[submodule "thirdparty/eLog"]
+	path = thirdparty/eLog
+	url = https://github.com/RealFaceCode/eLog.git
+

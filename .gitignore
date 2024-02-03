@@ -1,0 +1,12 @@
+.vscode/
+dev/
+bin/
+lib/
+build-WIN/
+build-LINUX/
+build-MAC/
+build-ANDROID/
+build-IOS/
+build-UNIX/
+main.cpp
+buildtest/
