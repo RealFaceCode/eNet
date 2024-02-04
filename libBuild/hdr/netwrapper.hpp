@@ -12,10 +12,13 @@
     using socket_t = int;
 #endif
 
+#include <string>
+
 constexpr int SOCK_ERR = -1;
 constexpr int INVAL_SOCK = (~0);
 constexpr unsigned int MAX_CONN = 0x7fffffff;
 constexpr unsigned int MAX_BUF = 512;
+constexpr unsigned int WOULD_NOT_BLOCK = 10035;
 
 namespace enet
 {
@@ -45,5 +48,7 @@ namespace enet
         int RecvFrom(socket_t sockfd, char *buf, int len, int flags, addrinfo* addr);
 
         bool SetBlocking(socket_t sockfd, bool blocking);
+
+        std::pair<std::string, int> GetError();
     }
 }

@@ -163,5 +163,17 @@ namespace enet
             return ::fcntl(sockfd, F_SETFL, flags) != -1;
 #endif
         }
+
+        std::pair<std::string, int> GetError()
+        {
+#ifdef _WIN32
+            char buffer[256];
+            int err = ::WSAGetLastError();
+            ::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, err, 0, buffer, 256, NULL);
+            return {buffer, err};
+#else
+            return {::strerror(errno), errno};
+#endif
+        }
     }
 }
