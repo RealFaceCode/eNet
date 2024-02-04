@@ -162,5 +162,6 @@ namespace enet
             flags = blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
             return ::fcntl(sockfd, F_SETFL, flags) != -1;
 #endif
+        }
     }
 }
