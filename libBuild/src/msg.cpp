@@ -170,36 +170,34 @@ namespace enet::structs
 
     uint16_t Msg::getUI16()
     {
-        uint16_t ret = (m_data[0] << 8)
-                    | m_data[1];
+        auto ret = static_cast<uint16_t>((static_cast<uint64_t>(m_data[0]) << 8) | m_data[1]);
         m_data.erase(m_data.begin(), m_data.begin() + 2);
         return ::ntohs(ret);
     }
 
     int16_t Msg::getI16()
     {
-        int16_t ret = (m_data[0] << 8)
-                    | m_data[1];
+        auto ret = static_cast<int16_t>((static_cast<uint64_t>(m_data[0]) << 8) | m_data[1]);
         m_data.erase(m_data.begin(), m_data.begin() + 2);
         return ::ntohs(ret);
     }
 
     uint32_t Msg::getUI32()
     {
-        uint32_t ret = (m_data[0] << 24)
-                    | (m_data[1] << 16)
-                    | (m_data[2] << 8)
-                    | m_data[3];
+        auto ret = static_cast<uint32_t>((static_cast<uint64_t>(m_data[0]) << 24)
+                    | (static_cast<uint64_t>(m_data[1]) << 16)
+                    | (static_cast<uint64_t>(m_data[2]) << 8)
+                    | static_cast<uint64_t>(m_data[3]));
         m_data.erase(m_data.begin(), m_data.begin() + 4);
         return ::ntohl(ret);
     }
 
     int32_t Msg::getI32()
     {
-        int32_t ret = (m_data[0] << 24)
-                    | (m_data[1] << 16)
-                    | (m_data[2] << 8)
-                    | m_data[3];
+        auto ret = static_cast<int32_t>((static_cast<uint64_t>(m_data[0]) << 24)
+                    | (static_cast<uint64_t>(m_data[1]) << 16)
+                    | (static_cast<uint64_t>(m_data[2]) << 8)
+                    | static_cast<uint64_t>(m_data[3]));
         m_data.erase(m_data.begin(), m_data.begin() + 4);
         return ::ntohl(ret);
     }
