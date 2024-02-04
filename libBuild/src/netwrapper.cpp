@@ -148,5 +148,19 @@ namespace enet
             return ::recvfrom(sockfd, buf, len, flags, addr->ai_addr, addr->ai_addrlen);
 #endif
         }
+
+        bool SetBlocking(socket_t sockfd, bool blocking)
+        {
+#ifdef _WIN32
+            u_long mode = blocking ? 0 : 1;
+            return ::ioctlsocket(sockfd, FIONBIO, &mode) != 0;
+#else
+            int flags = ::fcntl(sockfd, F_GETFL, 0);
+            if (flags == -1) {
+                return false;
+            }
+            flags = blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
+            return ::fcntl(sockfd, F_SETFL, flags) != -1;
+#endif
     }
 }

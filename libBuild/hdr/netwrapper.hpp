@@ -43,5 +43,7 @@ namespace enet
         int Recv(socket_t sockfd, char *buf, int len, int flags);
         int SendTo(socket_t sockfd, const char *buf, int len, int flags, const addrinfo* addr);
         int RecvFrom(socket_t sockfd, char *buf, int len, int flags, addrinfo* addr);
+
+        bool SetBlocking(socket_t sockfd, bool blocking);
     }
 }
