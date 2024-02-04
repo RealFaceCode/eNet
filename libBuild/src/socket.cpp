@@ -7,19 +7,20 @@ namespace enet
 {
     namespace structs
     {
-        Socket::Socket(enums::SocketType type, std::string_view addr, std::string_view port)
-            : m_sockfd(::INVAL_SOCK), m_addr(addr), m_port(port), m_type(type)
+        Socket::Socket(enums::SocketType type, std::string_view addr, std::string_view port, bool blocking)
+        : m_sockfd(::INVAL_SOCK), m_addr(addr), m_port(port), m_type(type)
         {
             m_settings.domain = enums::SocketDomainType::IPv4;
             m_settings.protocol = enums::SocketProtocol::TCP;
-            m_settings.blocking = true;
+            m_settings.blocking = blocking;
 
             generateAddrInfo();
             createSocket();
+            internal::SetBlocking(m_sockfd, m_settings.blocking);
         }
 
         Socket::Socket(enums::SocketType type, std::string_view addr, std::string_view port, enums::SocketDomainType domain, enums::SocketProtocol protocol, bool blocking)
-            : m_settings(), m_sockfd(0), m_addr(addr), m_port(port), m_type(type)
+        : m_settings(), m_sockfd(0), m_addr(addr), m_port(port), m_type(type)
         {
             m_settings.domain = domain;
             m_settings.protocol = protocol;
@@ -27,13 +28,15 @@ namespace enet
 
             generateAddrInfo();
             createSocket();
+            internal::SetBlocking(m_sockfd, m_settings.blocking);
         }
 
         Socket::Socket(enums::SocketType type, std::string_view addr, std::string_view port, const structs::SocketSettings& settings)
-            : m_settings(settings), m_sockfd(0), m_addr(addr), m_port(port), m_type(type)
+        : m_settings(settings), m_sockfd(0), m_addr(addr), m_port(port), m_type(type)
         {
             generateAddrInfo();
             createSocket();
+            internal::SetBlocking(m_sockfd, m_settings.blocking);
         }
 
         void Socket::setSettings(const structs::SocketSettings& settings)

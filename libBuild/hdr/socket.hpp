@@ -15,7 +15,7 @@ namespace enet
         {
         public:
             Socket() = default;
-            Socket(enums::SocketType type, std::string_view addr, std::string_view port);
+            Socket(enums::SocketType type, std::string_view addr, std::string_view port, bool blocking = true);
             Socket(enums::SocketType type, std::string_view addr, std::string_view port, enums::SocketDomainType domain, enums::SocketProtocol protocol, bool blocking);
             Socket(enums::SocketType type, std::string_view addr, std::string_view port, const structs::SocketSettings& settings);
             ~Socket() = default;
