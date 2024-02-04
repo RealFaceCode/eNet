@@ -39,7 +39,7 @@ namespace enet
             bool bind();
             bool listen();
             std::optional<Socket> accept();
-            bool connect();
+            bool connect() const;
             bool send(Msg& msg, int flags = 0);
             std::optional<Msg> recv(int flags = 0);
             bool sendTo(const Msg& msg, int flags = 0);
@@ -51,13 +51,13 @@ namespace enet
             void generateAddrInfo();
             void setFD(socket_t sockfd);
 
-            bool sendHeader(const Msg& msg);
-            bool sendOrder(const Msg& msg);
-            bool sendPackages(const Msg& msg);
+            bool sendHeader(const Msg& msg) const;
+            bool sendOrder(const Msg& msg) const;
+            bool sendPackages(const Msg& msg) const;
 
-            bool recvHeader(Msg& msg);
-            bool recvOrder(Msg& msg);
-            bool recvPackages(Msg& msg);
+            bool recvHeader(Msg& msg) const;
+            bool recvOrder(Msg& msg) const;
+            bool recvPackages(Msg& msg) const;
 
             structs::SocketSettings m_settings;
             socket_t m_sockfd;

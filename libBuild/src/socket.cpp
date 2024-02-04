@@ -187,7 +187,7 @@ namespace enet
             return newSocket;
         }
 
-        bool Socket::connect()
+        bool Socket::connect() const
         {
             if(m_type == enums::SocketType::NONE
             || m_type == enums::SocketType::Server
@@ -301,7 +301,7 @@ namespace enet
             internal::ToApiType(m_settings, family, streamType, protocol);
 
             int flag = 0;
-            char* addr = m_addr.data();
+            const char* addr = m_addr.data();
             if(m_type == enums::SocketType::Server)
             {
                 flag = AI_PASSIVE;
@@ -316,7 +316,7 @@ namespace enet
             m_sockfd = sockfd;
         }
 
-        bool Socket::sendHeader(const Msg& msg)
+        bool Socket::sendHeader(const Msg& msg) const
         {
             if(m_sockfd == ::INVAL_SOCK)
             {
@@ -342,7 +342,7 @@ namespace enet
             return true;
         }
 
-        bool Socket::sendOrder(const Msg& msg)
+        bool Socket::sendOrder(const Msg& msg) const
         {
             if(m_sockfd == ::INVAL_SOCK)
             {
@@ -371,7 +371,7 @@ namespace enet
             return true;
         }
 
-        bool Socket::sendPackages(const Msg& msg)
+        bool Socket::sendPackages(const Msg& msg) const
         {
             if(m_sockfd == ::INVAL_SOCK)
             {
@@ -407,7 +407,7 @@ namespace enet
             return true;
         }
 
-        bool Socket::recvHeader(Msg& msg)
+        bool Socket::recvHeader(Msg& msg) const
         {
             if(m_sockfd == ::INVAL_SOCK)
             {
@@ -433,7 +433,7 @@ namespace enet
             return true;
         }
 
-        bool Socket::recvOrder(Msg& msg)
+        bool Socket::recvOrder(Msg& msg) const
         {
             if(m_sockfd == ::INVAL_SOCK)
             {
@@ -464,7 +464,7 @@ namespace enet
             return true;
         }
 
-        bool Socket::recvPackages(Msg& msg)
+        bool Socket::recvPackages(Msg& msg) const
         {
             if(m_sockfd == ::INVAL_SOCK)
             {
