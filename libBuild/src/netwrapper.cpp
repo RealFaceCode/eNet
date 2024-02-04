@@ -1,28 +1,30 @@
 #include "netwrapper.hpp"
 
 #include <cstring>
+#include <stdio.h>
 
 namespace enet
 {
-    int Init()
-    {
-#ifdef _WIN32
-        WSADATA wsaData;
-        return (::WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0;
-#else
-        return true;
-#endif
-    }
-
-    void Cleanup()
-    {
-#ifdef _WIN32
-        ::WSACleanup();
-#endif
-    }
-
     namespace internal
     {
+
+        int InitNetworking()
+        {
+#ifdef _WIN32
+            WSADATA wsaData;
+            return (::WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0;
+#else
+            return true;
+#endif
+    }
+
+        void CleanupNetworking()
+        {
+#ifdef _WIN32
+            ::WSACleanup();
+#endif
+        }
+
         int GetAddressInfo(const char *hostname, const char *service, const addrinfo *hints, addrinfo **res)
         {
 #ifdef _WIN32
@@ -107,7 +109,7 @@ namespace enet
             return ::listen(sockfd, backlog);
         }
 
-        socket_t Accept(socket_t sockfd, char** addrStr)
+        socket_t Accept(socket_t sockfd, char** addrStr, char** portStr)
         {
             sockaddr_storage their_addr;
             socklen_t sin_size = sizeof their_addr;
@@ -115,8 +117,11 @@ namespace enet
             if (sock == SOCK_ERR) {
                 return SOCK_ERR;
             }
-
+            
             *addrStr = ::inet_ntoa(((sockaddr_in *)&their_addr)->sin_addr);
+            char strShort[10]; 
+            ::sprintf(strShort, "%hd", (((sockaddr_in *)&their_addr)->sin_port));
+            *portStr = strShort;
             return sock;
         }
 

@@ -1,6 +1,7 @@
 #pragma once
 
-namespace eNet
+namespace enet
 {
     void Init();
+    void Shutdown();
 }

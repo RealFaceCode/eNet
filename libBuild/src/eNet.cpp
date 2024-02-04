@@ -1,10 +1,19 @@
-#include <elog.hpp>
+#include "eNet.hpp"
 
-namespace eNet
+#include <elog.hpp>
+#include "netwrapper.hpp"
+
+namespace enet
 {
     void Init()
     {
         elog::Init();
+        enet::internal::InitNetworking();
+    }
+
+    void Shutdown()
+    {
+        enet::internal::CleanupNetworking();
     }
 }
 

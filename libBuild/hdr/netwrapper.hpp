@@ -19,11 +19,11 @@ constexpr unsigned int MAX_BUF = 512;
 
 namespace enet
 {
-    int Init();
-    void Cleanup();
-
     namespace internal
     {
+        int InitNetworking();
+        void CleanupNetworking();
+
         int GetAddressInfo(const char *hostname, const char *service, const addrinfo *hints, addrinfo **res);
         socket_t CreateSocket(int domain, int type, int protocol);
         socket_t CreateSocket(addrinfo* res);
@@ -36,9 +36,8 @@ namespace enet
         int ConnectToServer(socket_t sockfd, const addrinfo *res);
 
         int Bind(socket_t sockfd, const addrinfo *res);
-        int Listen(socket_t sockfd, int backlog = MAX_CONN);
-
-        socket_t Accept(socket_t sockfd, char** addrStr);
+        int Listen(socket_t sockfd, int backlog = ::MAX_CONN);
+        socket_t Accept(socket_t sockfd, char** addrStr, char** portStr);
 
         int Send(socket_t sockfd, const char *buf, int len, int flags);
         int Recv(socket_t sockfd, char *buf, int len, int flags);
