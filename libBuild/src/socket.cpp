@@ -177,6 +177,10 @@ namespace enet
             socket_t new_fd = internal::Accept(m_sockfd, &addrStr, &portStr);
             if (new_fd == ::SOCK_ERR)
             {
+                auto [_, err] = internal::GetError();
+                if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
+                    return std::nullopt;
+
                 elog::Error<"NET">("Accept failed");
                 return std::nullopt;
             }
@@ -209,6 +213,10 @@ namespace enet
 
             if(internal::ConnectToServer(m_sockfd, m_addrinfo) == -1)
             {
+                auto [_, err] = internal::GetError();
+                if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
+                    return false;
+
                 elog::Error<"NET">("Connect failed");
                 return false;
             }
@@ -338,6 +346,10 @@ namespace enet
 
             if(int64_t bytesSent = internal::Send(m_sockfd, (const char*)&header, static_cast<int>(msgSize), 0); bytesSent == -1)
             {
+                auto [_, err] = internal::GetError();
+                if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
+                    return false;
+
                 elog::Error<"NET">("Send failed: Header");
                 return false;
             }
@@ -367,6 +379,10 @@ namespace enet
 
             if(int64_t bytesSent = internal::Send(m_sockfd, (const char*)order.data(), static_cast<int>(msgSize), 0); bytesSent == -1)
             {
+                auto [_, err] = internal::GetError();
+                if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
+                    return false;
+
                 elog::Error<"NET">("Send failed: Order");
                 return false;
             }
@@ -403,6 +419,10 @@ namespace enet
 
             if(bytesSent != msg.size())
             {
+                auto [_, err] = internal::GetError();
+                if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
+                    return false;
+
                 elog::Error<"NET">("Send failed: Packages");
                 return false;
             }
@@ -428,6 +448,10 @@ namespace enet
             int64_t msgSize = sizeof(MsgHeader);
             if(int64_t bytesRecv = internal::Recv(m_sockfd, (char*)&header, static_cast<int>(msgSize), 0); bytesRecv == -1 || bytesRecv != msgSize)
             {
+                auto [_, err] = internal::GetError();
+                if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
+                    return false;
+
                 elog::Error<"NET">("Recv failed: Header");
                 return false;
             }
@@ -459,6 +483,10 @@ namespace enet
 
             if(int64_t bytesRecv = internal::Recv(m_sockfd, (char*)order.getOrder().data(), static_cast<int>(msgSize), 0); bytesRecv == -1 || bytesRecv != msgSize)
             {
+                auto [_, err] = internal::GetError();
+                if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
+                    return false;
+
                 elog::Error<"NET">("Recv failed: Order");
                 return false;
             }
@@ -498,6 +526,10 @@ namespace enet
 
             if(bytesRecv != msgSize)
             {
+                auto [_, err] = internal::GetError();
+                if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
+                    return false;
+
                 elog::Error<"NET">("Recv failed: Packages");
                 return false;
             }
