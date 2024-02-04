@@ -11,7 +11,7 @@ namespace enet
         Client(enums::SocketType type, std::string_view addr, std::string_view port, bool blocking = true);
         Client(enums::SocketType type, std::string_view addr, std::string_view port, enums::SocketDomainType domain, enums::SocketProtocol protocol, bool blocking);
         Client(enums::SocketType type, std::string_view addr, std::string_view port, const structs::SocketSettings& settings);
-        Client(const structs::Socket& socket);
+        explicit Client(const structs::Socket& socket);
         ~Client() = default;
 
         std::string_view getAddr() const;
