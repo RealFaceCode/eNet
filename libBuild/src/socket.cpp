@@ -3,7 +3,8 @@
 #include "package.hpp"
 #include "msgorder.hpp"
 
-namespace enet{
+namespace enet::structs
+{
     Socket::Socket(enums::SocketType type, std::string_view addr, std::string_view port, bool blocking)
     : m_sockfd(::INVAL_SOCK), m_addr(addr), m_port(port), m_type(type)
     {
