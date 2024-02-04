@@ -513,6 +513,11 @@ namespace enet::structs
         while(bytesRecv < msgSize)
         {
             Package package;
+            //calculate the size of the next package
+            package.m_size = msgSize - bytesRecv;
+            if(package.m_size > ::MAX_BUF)
+                package.m_size = ::MAX_BUF;
+
             int64_t current = 0;
             if(current = internal::Recv(m_sockfd, (char*)package.m_data.data(), static_cast<int>(package.m_size), 0); current == -1)
                 break;
