@@ -7,10 +7,6 @@ namespace enet
 {
     namespace structs
     {
-        MsgOrder::MsgOrder()
-        : m_order()
-        {}
-
         MsgOrder::MsgOrder(const std::vector<enums::MsgOrderType>& order)
         : m_order(order)
         {}

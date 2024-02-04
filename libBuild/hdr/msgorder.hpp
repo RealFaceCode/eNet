@@ -30,7 +30,7 @@ namespace enet
         struct MsgOrder
         {
         public:
-            MsgOrder();
+            MsgOrder() = default;
             explicit MsgOrder(const std::vector<enums::MsgOrderType>& order);
             ~MsgOrder() = default;
 
