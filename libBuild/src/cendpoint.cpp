@@ -2,16 +2,16 @@
 
 namespace enet
 {
-    Client::Client(enums::SocketType type, std::string_view addr, std::string_view port, bool blocking)
-        : m_socket(type, addr, port, blocking)
+    Client::Client(std::string_view addr, std::string_view port, bool blocking)
+        : m_socket(enums::SocketType::Client, addr, port, blocking)
     {}
 
-    Client::Client(enums::SocketType type, std::string_view addr, std::string_view port, enums::SocketDomainType domain, enums::SocketProtocol protocol, bool blocking)
-        : m_socket(type, addr, port, domain, protocol, blocking)
+    Client::Client(std::string_view addr, std::string_view port, enums::SocketDomainType domain, enums::SocketProtocol protocol, bool blocking)
+        : m_socket(enums::SocketType::Client, addr, port, domain, protocol, blocking)
     {}
 
-    Client::Client(enums::SocketType type, std::string_view addr, std::string_view port, const structs::SocketSettings& settings)
-        : m_socket(type, addr, port, settings)
+    Client::Client(std::string_view addr, std::string_view port, const structs::SocketSettings& settings)
+        : m_socket(enums::SocketType::Client, addr, port, settings)
     {}
 
     Client::Client(const structs::Socket& socket)

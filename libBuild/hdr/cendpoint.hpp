@@ -8,9 +8,9 @@ namespace enet
     {
     public:
         Client() = default;
-        Client(enums::SocketType type, std::string_view addr, std::string_view port, bool blocking = true);
-        Client(enums::SocketType type, std::string_view addr, std::string_view port, enums::SocketDomainType domain, enums::SocketProtocol protocol, bool blocking);
-        Client(enums::SocketType type, std::string_view addr, std::string_view port, const structs::SocketSettings& settings);
+        Client(std::string_view addr, std::string_view port, bool blocking = true);
+        Client(std::string_view addr, std::string_view port, enums::SocketDomainType domain, enums::SocketProtocol protocol, bool blocking);
+        Client(std::string_view addr, std::string_view port, const structs::SocketSettings& settings);
         explicit Client(const structs::Socket& socket);
         ~Client() = default;
 

@@ -10,9 +10,9 @@ namespace enet
     {
     public:
         Server() = default;
-        Server(enums::SocketType type, std::string_view addr, std::string_view port, bool blocking = true);
-        Server(enums::SocketType type, std::string_view addr, std::string_view port, enums::SocketDomainType domain, enums::SocketProtocol protocol, bool blocking);
-        Server(enums::SocketType type, std::string_view addr, std::string_view port, const structs::SocketSettings& settings);
+        Server(std::string_view addr, std::string_view port, bool blocking = true);
+        Server(std::string_view addr, std::string_view port, enums::SocketDomainType domain, enums::SocketProtocol protocol, bool blocking);
+        Server(std::string_view addr, std::string_view port, const structs::SocketSettings& settings);
         ~Server() = default;
 
         std::string_view getAddr() const;
@@ -21,9 +21,6 @@ namespace enet
         const std::vector<Client>& getConnections() const;
 
         void checkForConnections();
-
-        bool send(structs::Msg& msg) const;
-        std::optional<structs::Msg> recv();
         void close();
 
         std::vector<Client>::iterator begin();
