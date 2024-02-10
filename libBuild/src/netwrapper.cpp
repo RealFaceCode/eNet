@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <array>
 
+#include "elog.hpp"
+
 namespace enet::internal
 {
 
@@ -100,19 +102,17 @@ namespace enet::internal
         return ::listen(sockfd, backlog);
     }
 
-    socket_t Accept(socket_t sockfd, char** addrStr, char** portStr)
+    socket_t Accept(socket_t sockfd, std::string& addrStr, std::string& portStr)
     {
         sockaddr_storage their_addr;
-        socklen_t sin_size = sizeof their_addr;
+        socklen_t sin_size = sizeof(sockaddr_storage);
         socket_t sock = ::accept(sockfd, (sockaddr *)&their_addr, &sin_size);
         if (sock == ::SOCK_ERR) {
             return ::SOCK_ERR;
         }
         
-        *addrStr = ::inet_ntoa(((sockaddr_in *)&their_addr)->sin_addr);
-        std::array<char, 10> strShort;
-        ::sprintf(&strShort[0], "%hd", (((sockaddr_in *)&their_addr)->sin_port));
-        *portStr = strShort.data();
+        addrStr = ::inet_ntoa(((sockaddr_in *)&their_addr)->sin_addr);
+        portStr = elog::fmt::Format("{}", ((sockaddr_in *)&their_addr)->sin_port);
         return sock;
     }
 

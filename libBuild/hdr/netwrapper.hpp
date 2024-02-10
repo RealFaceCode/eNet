@@ -37,7 +37,7 @@ namespace enet::internal
 
     int Bind(socket_t sockfd, const addrinfo *res);
     int Listen(socket_t sockfd, int backlog = ::MAX_CONN);
-    socket_t Accept(socket_t sockfd, char** addrStr, char** portStr);
+    socket_t Accept(socket_t sockfd, std::string& addrStr, std::string& portStr);
 
     int Send(socket_t sockfd, const char *buf, int len, int flags);
     int Recv(socket_t sockfd, char *buf, int len, int flags);
