@@ -5,6 +5,10 @@
 
 namespace enet::structs
 {
+    Socket::Socket()
+        : m_sockfd(::INVAL_SOCK), m_type(enums::SocketType::NONE)
+    {}
+
     Socket::Socket(enums::SocketType type, std::string_view addr, std::string_view port, bool blocking)
     : m_sockfd(::INVAL_SOCK), m_addr(addr), m_port(port), m_type(type)
     {
@@ -170,9 +174,9 @@ namespace enet::structs
             return std::nullopt;
         }
 
-        char* addrStr = nullptr;
-        char* portStr = nullptr;
-        socket_t new_fd = internal::Accept(m_sockfd, &addrStr, &portStr);
+        std::string addrStr;
+        std::string portStr;
+        socket_t new_fd = internal::Accept(m_sockfd, addrStr, portStr);
         if (new_fd == ::SOCK_ERR)
         {
             auto [_, err] = internal::GetError();
@@ -188,6 +192,7 @@ namespace enet::structs
         newSocket.setAddr(addrStr);
         newSocket.setPort(portStr);
         newSocket.setSettings(m_settings);
+        newSocket.setType(enums::SocketType::Client);
 
         return newSocket;
     }

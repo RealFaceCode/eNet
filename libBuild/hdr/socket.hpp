@@ -12,7 +12,7 @@ namespace enet::structs
     struct Socket
     {
     public:
-        Socket() = default;
+        Socket();
         Socket(enums::SocketType type, std::string_view addr, std::string_view port, bool blocking = true);
         Socket(enums::SocketType type, std::string_view addr, std::string_view port, enums::SocketDomainType domain, enums::SocketProtocol protocol, bool blocking);
         Socket(enums::SocketType type, std::string_view addr, std::string_view port, const structs::SocketSettings& settings);
@@ -59,7 +59,7 @@ namespace enet::structs
 
         structs::SocketSettings m_settings;
         socket_t m_sockfd;
-        addrinfo* m_addrinfo;
+        addrinfo* m_addrinfo = nullptr;
         std::string m_addr;
         std::string m_port;
         enums::SocketType m_type;
