@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include "err.hpp"
 #ifdef _WIN32
     #include <winsock2.h>
     #include <ws2tcpip.h>
@@ -13,6 +14,7 @@
     using socket_t = int;
 #endif
 
+
 constexpr int SOCK_ERR = -1;
 constexpr int INVAL_SOCK = (~0);
 constexpr unsigned int MAX_CONN = 0x7fffffff;
@@ -21,7 +23,7 @@ constexpr unsigned int WOULD_NOT_BLOCK = 10035;
 
 namespace enet::internal
 {
-    int InitNetworking();
+    enums::Err InitNetworking();
     void CleanupNetworking();
 
     int GetAddressInfo(const char *hostname, const char *service, const addrinfo *hints, addrinfo **res);

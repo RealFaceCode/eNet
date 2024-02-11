@@ -9,13 +9,15 @@
 namespace enet::internal
 {
 
-    int InitNetworking()
+    enums::Err InitNetworking()
     {
 #ifdef _WIN32
-        WSADATA wsaData;
-        return (::WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0;
+        if(WSADATA wsaData; ::WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+            return enums::Err::FAILED;
+
+        return enums::Err::OK;
 #else
-        return true;
+        return enums::Err::OK;
 #endif
     }
 
