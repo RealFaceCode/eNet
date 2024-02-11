@@ -28,14 +28,14 @@ namespace enet
         return m_socket.getPort();
     }
 
-    enums::Err Client::connect() const
+    bool Client::connect() const
     {
-        return m_socket.connect();
+        return IsOK(m_socket.connect());
     }
 
-    enums::Err Client::send(structs::Msg& msg) const
+    bool Client::send(structs::Msg& msg) const
     {
-        return m_socket.send(msg);
+        return IsOK(m_socket.send(msg));
     }
 
     std::optional<structs::Msg> Client::recv()

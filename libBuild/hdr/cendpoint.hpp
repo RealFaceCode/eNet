@@ -18,8 +18,8 @@ namespace enet
         std::string_view getAddr() const;
         std::string_view getPort() const;
 
-        enums::Err connect() const;
-        enums::Err send(structs::Msg& msg) const;
+        bool connect() const;
+        bool send(structs::Msg& msg) const;
         std::optional<structs::Msg> recv();
         void close();
     private:
