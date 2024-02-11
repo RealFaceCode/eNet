@@ -111,51 +111,55 @@ namespace enet::structs
         return m_sockfd;
     }
 
-    bool Socket::bind()
+    enums::Err Socket::bind()
     {
+        using enum enet::enums::Err;
         if(m_type == enums::SocketType::NONE
         || m_type == enums::SocketType::Client
         || m_port.empty())
         {
             elog::Error<"NET">("Invalid socket type, address, or port");
-            return false;
+            return FAILED;
         }
 
         if(internal::Bind(m_sockfd, m_addrinfo) == -1)
         {
             elog::Error<"NET">("Bind failed");
             m_sockfd = ::SOCK_ERR;
-            return false;
+            return FAILED;
         }
 
         internal::FreeAddressInfo(m_addrinfo);
-        return m_sockfd != ::SOCK_ERR;
+        m_addrinfo = nullptr;
+
+        return m_sockfd != ::SOCK_ERR ? OK : FAILED;
     }
 
-    bool Socket::listen()
+    enums::Err Socket::listen()
     {
+        using enum enet::enums::Err;
         if(m_type == enums::SocketType::NONE
         || m_type == enums::SocketType::Client
         || m_port.empty())
         {
             elog::Error<"NET">("Invalid socket type, address, or port");
-            return false;
+            return FAILED;
         }
 
         if(m_sockfd == ::SOCK_ERR)
         {
             elog::Error<"NET">("Invalid socket file descriptor");
-            return false;
+            return FAILED;
         }
 
         if(internal::Listen(m_sockfd) == -1)
         {
             elog::Error<"NET">("Listen failed");
             m_sockfd = ::SOCK_ERR;
-            return false;
+            return FAILED;
         }
 
-        return true;
+        return OK;
     }
 
     std::optional<Socket> Socket::accept()
@@ -197,60 +201,62 @@ namespace enet::structs
         return newSocket;
     }
 
-    bool Socket::connect() const
+    enums::Err Socket::connect() const
     {
+        using enum enet::enums::Err;
         if(m_type == enums::SocketType::NONE
         || m_type == enums::SocketType::Server
         || m_addr.empty()
         || m_port.empty())
         {
             elog::Error<"NET">("Invalid socket type, address, or port");
-            return false;
+            return FAILED;
         }
 
         if(m_sockfd == ::INVAL_SOCK)
         {
             elog::Error<"NET">("Invalid socket file descriptor");
-            return false;
+            return FAILED;
         }
 
         if(internal::ConnectToServer(m_sockfd, m_addrinfo) == -1)
         {
             auto [_, err] = internal::GetError();
             if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
-                return false;
+                return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Connect failed");
-            return false;
+            return FAILED;
         }
 
-        return true;
+        return OK;
     }
 
-    bool Socket::send(Msg& msg) const
+    enums::Err Socket::send(Msg& msg) const
     {
+        using enum enet::enums::Err;
         if(m_sockfd == ::INVAL_SOCK)
         {
             elog::Error<"NET">("Invalid socket file descriptor");
-            return false;
+            return INVAL_SOCK_FD;
         }
 
         if(m_type == enums::SocketType::NONE)
         {
             elog::Error<"NET">("Invalid socket type");
-            return false;
+            return INVAL_SOCK_TYPE;
         }
 
         msg.pack();
 
         if(!sendHeader(msg))
-            return false;
+            return SEND_HEADER_FAILED;
         if(!sendOrder(msg))
-            return false;
+            return SEND_ORDER_FAILED;
         if(!sendPackages(msg))
-            return false;
+            return SEND_PACKAGES_FAILED;
 
-        return true;
+        return OK;
     }
 
     std::optional<Msg> Socket::recv()
@@ -278,9 +284,9 @@ namespace enet::structs
         return msg;
     }
 
-    bool Socket::sendTo(const Msg& msg) const
+    enums::Err Socket::sendTo(const Msg& msg) const
     {
-        return false;
+        return enums::Err::FAILED;
     }
 
     std::optional<Msg> Socket::recvFrom() const
@@ -330,18 +336,19 @@ namespace enet::structs
         m_sockfd = sockfd;
     }
 
-    bool Socket::sendHeader(const Msg& msg) const
+    enums::Err Socket::sendHeader(const Msg& msg) const
     {
+        using enum enet::enums::Err;
         if(m_sockfd == ::INVAL_SOCK)
         {
             elog::Error<"NET">("Invalid socket file descriptor");
-            return false;
+            return INVAL_SOCK_FD;
         }
 
         if(m_type == enums::SocketType::NONE)
         {
             elog::Error<"NET">("Invalid socket type");
-            return false;
+            return INVAL_SOCK_TYPE;
         }
 
         const auto& header = msg.header();
@@ -351,31 +358,32 @@ namespace enet::structs
         {
             auto [_, err] = internal::GetError();
             if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
-                return false;
+                return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Send failed: Header");
-            return false;
+            return FAILED;
         }
 
-        return true;
+        return enums::Err::OK;
     }
 
-    bool Socket::sendOrder(const Msg& msg) const
+    enums::Err Socket::sendOrder(const Msg& msg) const
     {
+        using enum enet::enums::Err;
         if(m_sockfd == ::INVAL_SOCK)
         {
             elog::Error<"NET">("Invalid socket file descriptor");
-            return false;
+            return INVAL_SOCK_FD;
         }
 
         if(m_type == enums::SocketType::NONE)
         {
             elog::Error<"NET">("Invalid socket type");
-            return false;
+            return INVAL_SOCK_TYPE;
         }
 
         if(msg.order().count() == 0)
-            return true;
+            return OK;
 
         const auto& order = msg.order();
         int64_t msgSize = order.count();
@@ -384,27 +392,28 @@ namespace enet::structs
         {
             auto [_, err] = internal::GetError();
             if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
-                return false;
+                return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Send failed: Order");
-            return false;
+            return FAILED;
         }
 
-        return true;
+        return OK;
     }
 
-    bool Socket::sendPackages(const Msg& msg) const
+    enums::Err Socket::sendPackages(const Msg& msg) const
     {
+        using enum enet::enums::Err;
         if(m_sockfd == ::INVAL_SOCK)
         {
             elog::Error<"NET">("Invalid socket file descriptor");
-            return false;
+            return INVAL_SOCK_FD;
         }
 
         if(m_type == enums::SocketType::NONE)
         {
             elog::Error<"NET">("Invalid socket type");
-            return false;
+            return INVAL_SOCK_TYPE;
         }
 
         auto packages = msg.getPackageList();
@@ -424,27 +433,28 @@ namespace enet::structs
         {
             auto [_, err] = internal::GetError();
             if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
-                return false;
+                return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Send failed: Packages");
-            return false;
+            return FAILED;
         }
 
-        return true;
+        return enums::Err::OK;
     }
 
-    bool Socket::recvHeader(Msg& msg) const
+    enums::Err Socket::recvHeader(Msg& msg) const
     {
+        using enum enet::enums::Err;
         if(m_sockfd == ::INVAL_SOCK)
         {
             elog::Error<"NET">("Invalid socket file descriptor");
-            return false;
+            return INVAL_SOCK_FD;
         }
 
         if(m_type == enums::SocketType::NONE)
         {
             elog::Error<"NET">("Invalid socket type");
-            return false;
+            return INVAL_SOCK_TYPE;
         }
 
         MsgHeader header;
@@ -453,32 +463,33 @@ namespace enet::structs
         {
             auto [_, err] = internal::GetError();
             if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
-                return false;
+                return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Recv failed: Header");
-            return false;
+            return FAILED;
         }
 
         msg.header() = header;
-        return true;
+        return OK;
     }
 
-    bool Socket::recvOrder(Msg& msg) const
+    enums::Err Socket::recvOrder(Msg& msg) const
     {
+        using enum enet::enums::Err;
         if(m_sockfd == ::INVAL_SOCK)
         {
             elog::Error<"NET">("Invalid socket file descriptor");
-            return false;
+            return INVAL_SOCK_FD;
         }
 
         if(m_type == enums::SocketType::NONE)
         {
             elog::Error<"NET">("Invalid socket type");
-            return false;
+            return INVAL_SOCK_TYPE;
         }
 
         if(msg.header().m_msgOrderCount == 0)
-            return true;
+            return OK;
 
         MsgOrder order;
         order.getOrder().resize(msg.header().m_msgOrderCount);
@@ -488,28 +499,29 @@ namespace enet::structs
         {
             auto [_, err] = internal::GetError();
             if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
-                return false;
+                return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Recv failed: Order");
-            return false;
+            return FAILED;
         }
 
         msg.order() = order;
-        return true;
+        return OK;
     }
 
-    bool Socket::recvPackages(Msg& msg) const
+    enums::Err Socket::recvPackages(Msg& msg) const
     {
+        using enum enet::enums::Err;
         if(m_sockfd == ::INVAL_SOCK)
         {
             elog::Error<"NET">("Invalid socket file descriptor");
-            return false;
+            return INVAL_SOCK_FD;
         }
 
         if(m_type == enums::SocketType::NONE)
         {
             elog::Error<"NET">("Invalid socket type");
-            return false;
+            return INVAL_SOCK_TYPE;
         }
 
         PackageList packages;
@@ -536,13 +548,13 @@ namespace enet::structs
         {
             auto [_, err] = internal::GetError();
             if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
-                return false;
+                return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Recv failed: Packages");
-            return false;
+            return FAILED;
         }
 
         msg.addPackageList(packages);
-        return true;
+        return OK;
     }
 } // namespace enet::structs

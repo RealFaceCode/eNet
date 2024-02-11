@@ -6,6 +6,7 @@
 #include "settings.hpp"
 #include "netwrapper.hpp"
 #include "msg.hpp"
+#include "err.hpp"
 
 namespace enet::structs
 {
@@ -34,13 +35,13 @@ namespace enet::structs
         bool getBlocking() const;
         socket_t getFd() const;
 
-        bool bind();
-        bool listen();
+        enums::Err bind();
+        enums::Err listen();
         std::optional<Socket> accept();
-        bool connect() const;
-        bool send(Msg& msg) const;
+        enums::Err connect() const;
+        enums::Err send(Msg& msg) const;
         std::optional<Msg> recv();
-        bool sendTo(const Msg& msg) const;
+        enums::Err sendTo(const Msg& msg) const;
         std::optional<Msg> recvFrom() const;
         void close();
 
@@ -49,13 +50,13 @@ namespace enet::structs
         void generateAddrInfo();
         void setFD(socket_t sockfd);
 
-        bool sendHeader(const Msg& msg) const;
-        bool sendOrder(const Msg& msg) const;
-        bool sendPackages(const Msg& msg) const;
+        enums::Err sendHeader(const Msg& msg) const;
+        enums::Err sendOrder(const Msg& msg) const;
+        enums::Err sendPackages(const Msg& msg) const;
 
-        bool recvHeader(Msg& msg) const;
-        bool recvOrder(Msg& msg) const;
-        bool recvPackages(Msg& msg) const;
+        enums::Err recvHeader(Msg& msg) const;
+        enums::Err recvOrder(Msg& msg) const;
+        enums::Err recvPackages(Msg& msg) const;
 
         structs::SocketSettings m_settings;
         socket_t m_sockfd;
