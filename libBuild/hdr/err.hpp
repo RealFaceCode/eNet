@@ -22,9 +22,15 @@ namespace enet
         ACCEPT_FAILED = 13,
         CONNECT_FAILED = 14,
         CLOSE_FAILED = 15,
+
         };
 
         bool operator! (Err err);
+        bool operator== (Err err, bool b);
+        bool operator!= (Err err, bool b);
+        bool operator== (bool b, Err err);
+        bool operator!= (bool b, Err err);
+
     }
 
     bool IsOK(enums::Err err);

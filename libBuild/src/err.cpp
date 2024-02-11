@@ -8,6 +8,26 @@ namespace enet
         {
             return err == Err::OK;
         }
+
+        bool operator== (Err err, bool b)
+        {
+            return static_cast<bool>(err) == b;
+        }
+
+        bool operator!= (Err err, bool b)
+        {
+            return static_cast<bool>(err) != b;
+        }
+
+        bool operator== (bool b, Err err)
+        {
+            return b == static_cast<bool>(err);
+        }
+
+        bool operator!= (bool b, Err err)
+        {
+            return b != static_cast<bool>(err);
+        }
     }
 
     bool IsOK(enums::Err err)
