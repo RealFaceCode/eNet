@@ -1,9 +1,17 @@
 #include "err.hpp"
 
-namespace enet::enums
+namespace enet
 {
-    bool operator! (Err err)
+    namespace enums
     {
-        return err == Err::OK;
+        bool operator! (Err err)
+        {
+            return err == Err::OK;
+        }
+    }
+
+    bool IsOK(enums::Err err)
+    {
+        return err == enums::Err::OK || err == enums::Err::WOULD_NOT_BLOCK;
     }
 } // namespace enet::enums

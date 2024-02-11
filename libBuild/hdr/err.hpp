@@ -1,9 +1,11 @@
 #pragma once
 
-namespace enet::enums
+namespace enet
 {
-    enum class Err
+    namespace enums
     {
+        enum class Err
+        {
         FAILED = 0,
         OK = 1,
         WOULD_NOT_BLOCK = 2,
@@ -20,8 +22,10 @@ namespace enet::enums
         ACCEPT_FAILED = 13,
         CONNECT_FAILED = 14,
         CLOSE_FAILED = 15,
-    };
+        };
 
-    bool operator! (Err err);
+        bool operator! (Err err);
+    }
 
+    bool IsOK(enums::Err err);
 } // namespace enet::enums
