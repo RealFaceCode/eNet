@@ -28,12 +28,12 @@ namespace enet
         return m_socket.getPort();
     }
 
-    bool Client::connect() const
+    enums::Err Client::connect() const
     {
         return m_socket.connect();
     }
 
-    bool Client::send(structs::Msg& msg) const
+    enums::Err Client::send(structs::Msg& msg) const
     {
         return m_socket.send(msg);
     }
