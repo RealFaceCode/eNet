@@ -1,4 +1,4 @@
-#include "eNet.hpp"
+#include "enet.hpp"
 
 #include <elog.hpp>
 #include "netwrapper.hpp"
