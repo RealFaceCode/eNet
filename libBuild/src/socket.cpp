@@ -132,7 +132,7 @@ namespace enet::structs
         internal::FreeAddressInfo(m_addrinfo);
         m_addrinfo = nullptr;
 
-        return m_sockfd != ::SOCK_ERR ? OK : FAILED;
+        return m_sockfd != ::SOCK_ERR ? OK : BIND_FAILED;
     }
 
     enums::Err Socket::listen()
@@ -156,7 +156,7 @@ namespace enet::structs
         {
             elog::Error<"NET">("Listen failed");
             m_sockfd = ::SOCK_ERR;
-            return FAILED;
+            return LISTEN_FAILED;
         }
 
         return OK;
@@ -226,7 +226,7 @@ namespace enet::structs
                 return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Connect failed");
-            return FAILED;
+            return CONNECT_FAILED;
         }
 
         return OK;
