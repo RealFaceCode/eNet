@@ -5,10 +5,10 @@
 
 namespace enet
 {
-    void Init()
+    enums::Err Init()
     {
         elog::Init();
-        enet::internal::InitNetworking();
+        return enet::internal::InitNetworking();
     }
 
     void Shutdown()

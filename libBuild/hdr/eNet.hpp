@@ -3,9 +3,10 @@
 #include "cendpoint.hpp"
 #include "sendpoint.hpp"
 #include "msg.hpp"
+#include "err.hpp"
 
 namespace enet
 {
-    void Init();
+    enums::Err Init();
     void Shutdown();
 }
