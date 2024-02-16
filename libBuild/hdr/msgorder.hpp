@@ -35,8 +35,10 @@ namespace enet
             ~MsgOrder() = default;
 
             void setOrder(const std::vector<enums::MsgOrderType>& order);
-            std::vector<enums::MsgOrderType>& getOrder();
-            const std::vector<enums::MsgOrderType>& getOrder() const;
+            std::vector<enums::MsgOrderType>& get();
+            const std::vector<enums::MsgOrderType>& get() const;
+
+            void reserve(size_t count);
 
             enums::MsgOrderType* data();
             const enums::MsgOrderType* data() const;

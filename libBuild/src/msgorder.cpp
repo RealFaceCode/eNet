@@ -16,14 +16,19 @@ namespace enet
             m_order = order;
         }
 
-        std::vector<enums::MsgOrderType>& MsgOrder::getOrder()
+        std::vector<enums::MsgOrderType>& MsgOrder::get()
         {
             return m_order;
         }
 
-        const std::vector<enums::MsgOrderType>& MsgOrder::getOrder() const
+        const std::vector<enums::MsgOrderType>& MsgOrder::get() const
         {
             return m_order;
+        }
+
+        void MsgOrder::reserve(size_t count)
+        {
+            m_order.reserve(count);
         }
 
         enums::MsgOrderType* MsgOrder::data()
