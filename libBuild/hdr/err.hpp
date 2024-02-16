@@ -22,7 +22,11 @@ namespace enet
         ACCEPT_FAILED = 13,
         CONNECT_FAILED = 14,
         CLOSE_FAILED = 15,
-
+        DISCONNECTED = 16,
+        INVALID_MSG_TYPE = 17,
+        INVALID_MSG_ORDER = 18,
+        INVALID_MSG_SIZE = 19,
+        INVALID_MSG_CHECKSUM = 20,
         };
 
         bool operator! (Err err);

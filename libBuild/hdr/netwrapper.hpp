@@ -20,6 +20,7 @@ constexpr int INVAL_SOCK = (~0);
 constexpr unsigned int MAX_CONN = 0x7fffffff;
 constexpr unsigned int MAX_BUF = 512;
 constexpr unsigned int WOULD_NOT_BLOCK = 10035;
+constexpr unsigned int CONN_CLOSED = 10054;
 
 namespace enet::internal
 {
@@ -49,4 +50,7 @@ namespace enet::internal
     bool SetBlocking(socket_t sockfd, bool blocking);
 
     std::pair<std::string, int> GetError();
+
+    size_t GetRecvBufSize(socket_t sockfd);
+    size_t GetCurrentRecvBufSize(socket_t sockfd);
 }

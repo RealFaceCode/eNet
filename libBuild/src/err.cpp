@@ -6,7 +6,7 @@ namespace enet
     {
         bool operator! (Err err)
         {
-            return err == Err::OK;
+            return err != Err::OK;
         }
 
         bool operator== (Err err, bool b)
@@ -32,6 +32,7 @@ namespace enet
 
     bool IsOK(enums::Err err)
     {
-        return err == enums::Err::OK || err == enums::Err::WOULD_NOT_BLOCK;
+        bool r = err == enums::Err::OK || err == enums::Err::WOULD_NOT_BLOCK;
+        return r;
     }
 } // namespace enet::enums

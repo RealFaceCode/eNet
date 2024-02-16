@@ -21,6 +21,7 @@ namespace enet
         const std::vector<Client>& getConnections() const;
 
         void checkForConnections();
+        void updateConnections();
         void close();
 
         std::vector<Client>::iterator begin();

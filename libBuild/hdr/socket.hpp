@@ -34,11 +34,12 @@ namespace enet::structs
         enums::SocketProtocol getProtocol() const;
         bool getBlocking() const;
         socket_t getFd() const;
+        bool isActive() const;
 
         enums::Err bind();
         enums::Err listen();
         std::optional<Socket> accept();
-        enums::Err connect() const;
+        enums::Err connect();
         enums::Err send(Msg& msg) const;
         std::optional<Msg> recv();
         enums::Err sendTo(const Msg& msg) const;
@@ -54,9 +55,9 @@ namespace enet::structs
         enums::Err sendOrder(const Msg& msg) const;
         enums::Err sendPackages(const Msg& msg) const;
 
-        enums::Err recvHeader(Msg& msg) const;
-        enums::Err recvOrder(Msg& msg) const;
-        enums::Err recvPackages(Msg& msg) const;
+        enums::Err recvHeader(Msg& msg);
+        enums::Err recvOrder(Msg& msg);
+        enums::Err recvPackages(Msg& msg);
 
         structs::SocketSettings m_settings;
         socket_t m_sockfd;
@@ -64,5 +65,6 @@ namespace enet::structs
         std::string m_addr;
         std::string m_port;
         enums::SocketType m_type;
+        bool m_active;
     };
 }

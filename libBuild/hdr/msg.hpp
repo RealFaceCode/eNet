@@ -58,6 +58,7 @@ namespace enet::structs
         PackageList getPackageList() const;
         void addPackageList(const PackageList& list);
         void pack();
+        void unpack();
 
     private:
         std::vector<uint8_t> m_data;

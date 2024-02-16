@@ -20,6 +20,7 @@ namespace enet
             size_t m_msgSize = 0;
             size_t m_msgType = 0;
             size_t m_msgOrderCount = 0;
+            size_t m_checksum = sizeof(MsgHeader);
         };
     }
 

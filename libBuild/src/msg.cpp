@@ -149,6 +149,9 @@ namespace enet::structs
         std::string ret;
         size_t len = getUI64();
 
+        if(len > m_data.size())
+            len = m_data.size();
+
         ret.insert(ret.end(), m_data.begin(), m_data.begin() + len);
         m_data.erase(m_data.begin(), m_data.begin() + len);
         return ret;
@@ -292,7 +295,15 @@ namespace enet::structs
 
     void Msg::pack()
     {
-        m_header.m_msgSize = m_data.size();
-        m_header.m_msgOrderCount = m_order.getOrder().size();
+        m_header.m_msgSize = ::htonll(m_data.size());
+        m_header.m_msgOrderCount = ::htonll(m_order.getOrder().size());
+        m_header.m_checksum = ::htonll(m_header.m_checksum);
+    }
+
+    void Msg::unpack()
+    {
+        m_header.m_msgSize = ::ntohll(m_header.m_msgSize);
+        m_header.m_msgOrderCount = ::ntohll(m_header.m_msgOrderCount);
+        m_header.m_checksum = ::ntohll(m_header.m_checksum);
     }
 } // namespace enet::structs

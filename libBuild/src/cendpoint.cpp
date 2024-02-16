@@ -28,7 +28,12 @@ namespace enet
         return m_socket.getPort();
     }
 
-    bool Client::connect() const
+    bool Client::isConnected() const
+    {
+        return m_socket.isActive();
+    }
+
+    bool Client::connect()
     {
         return IsOK(m_socket.connect());
     }

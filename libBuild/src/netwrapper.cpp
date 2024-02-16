@@ -168,4 +168,20 @@ namespace enet::internal
         return {::strerror(errno), errno};
 #endif
     }
+
+    size_t GetRecvBufSize(socket_t sockfd)
+    {
+        int size;
+        socklen_t len = sizeof(size);
+        ::getsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, (char*)&size, &len);
+        return size;
+    }
+
+    size_t GetCurrentRecvBufSize(socket_t sockfd)
+    {
+        const size_t size = GetRecvBufSize(sockfd);
+        char buffer[size];
+        int flags = MSG_PEEK; // Verwenden Sie MSG_PEEK, um die Daten im Puffer anzusehen
+        return ::recv(sockfd, buffer, size, flags);
+    }
 } // namespace enet::internal

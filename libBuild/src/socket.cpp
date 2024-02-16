@@ -3,6 +3,9 @@
 #include "package.hpp"
 #include "msgorder.hpp"
 
+#include <iostream>
+#include <utility>
+
 namespace enet::structs
 {
     Socket::Socket()
@@ -111,6 +114,11 @@ namespace enet::structs
         return m_sockfd;
     }
 
+    bool Socket::isActive() const
+    {
+        return m_active;
+    }
+
     enums::Err Socket::bind()
     {
         using enum enet::enums::Err;
@@ -197,11 +205,12 @@ namespace enet::structs
         newSocket.setPort(portStr);
         newSocket.setSettings(m_settings);
         newSocket.setType(enums::SocketType::Client);
+        newSocket.m_active = true;
 
         return newSocket;
     }
 
-    enums::Err Socket::connect() const
+    enums::Err Socket::connect()
     {
         using enum enet::enums::Err;
         if(m_type == enums::SocketType::NONE
@@ -213,7 +222,7 @@ namespace enet::structs
             return FAILED;
         }
 
-        if(m_sockfd == ::INVAL_SOCK)
+        if(std::cmp_equal(m_sockfd, ::INVAL_SOCK))
         {
             elog::Error<"NET">("Invalid socket file descriptor");
             return FAILED;
@@ -229,13 +238,14 @@ namespace enet::structs
             return CONNECT_FAILED;
         }
 
+        m_active = true;
         return OK;
     }
 
     enums::Err Socket::send(Msg& msg) const
     {
         using enum enet::enums::Err;
-        if(m_sockfd == ::INVAL_SOCK)
+        if(std::cmp_equal(m_sockfd, ::INVAL_SOCK))
         {
             elog::Error<"NET">("Invalid socket file descriptor");
             return INVAL_SOCK_FD;
@@ -261,7 +271,7 @@ namespace enet::structs
 
     std::optional<Msg> Socket::recv()
     {
-        if(m_sockfd == ::INVAL_SOCK)
+        if(std::cmp_equal(m_sockfd, ::INVAL_SOCK))
         {
             elog::Error<"NET">("Invalid socket file descriptor");
             return std::nullopt;
@@ -301,6 +311,7 @@ namespace enet::structs
             internal::CloseSocket(m_sockfd);
             m_sockfd = ::INVAL_SOCK;
         }
+        m_active = false;
     }
 
     void Socket::createSocket()
@@ -311,6 +322,12 @@ namespace enet::structs
         }
 
         m_sockfd = internal::CreateSocket(m_addrinfo);
+
+        bool flag =  false;
+        int result = ::setsockopt(m_sockfd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(bool));
+
+        if(result < 0)
+            elog::Error<"NET">("Failed to set TCP_NODELAY");
     }
 
     void Socket::generateAddrInfo()
@@ -339,7 +356,7 @@ namespace enet::structs
     enums::Err Socket::sendHeader(const Msg& msg) const
     {
         using enum enet::enums::Err;
-        if(m_sockfd == ::INVAL_SOCK)
+        if(std::cmp_equal(m_sockfd, ::INVAL_SOCK))
         {
             elog::Error<"NET">("Invalid socket file descriptor");
             return INVAL_SOCK_FD;
@@ -353,15 +370,14 @@ namespace enet::structs
 
         const auto& header = msg.header();
         int64_t msgSize = sizeof(MsgHeader);
-
-        if(int64_t bytesSent = internal::Send(m_sockfd, (const char*)&header, static_cast<int>(msgSize), 0); bytesSent == -1)
+        if(int64_t bytesSent = internal::Send(m_sockfd, (const char*)&header, static_cast<int>(msgSize), 0); bytesSent == -1 || bytesSent != msgSize)
         {
             auto [_, err] = internal::GetError();
             if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
                 return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Send failed: Header");
-            return FAILED;
+            return SEND_HEADER_FAILED;
         }
 
         return enums::Err::OK;
@@ -370,7 +386,7 @@ namespace enet::structs
     enums::Err Socket::sendOrder(const Msg& msg) const
     {
         using enum enet::enums::Err;
-        if(m_sockfd == ::INVAL_SOCK)
+        if(std::cmp_equal(m_sockfd, ::INVAL_SOCK))
         {
             elog::Error<"NET">("Invalid socket file descriptor");
             return INVAL_SOCK_FD;
@@ -395,7 +411,7 @@ namespace enet::structs
                 return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Send failed: Order");
-            return FAILED;
+            return SEND_ORDER_FAILED;
         }
 
         return OK;
@@ -404,7 +420,7 @@ namespace enet::structs
     enums::Err Socket::sendPackages(const Msg& msg) const
     {
         using enum enet::enums::Err;
-        if(m_sockfd == ::INVAL_SOCK)
+        if(std::cmp_equal(m_sockfd, ::INVAL_SOCK))
         {
             elog::Error<"NET">("Invalid socket file descriptor");
             return INVAL_SOCK_FD;
@@ -436,16 +452,16 @@ namespace enet::structs
                 return WOULD_NOT_BLOCK;
 
             elog::Error<"NET">("Send failed: Packages");
-            return FAILED;
+            return SEND_PACKAGES_FAILED;
         }
 
         return enums::Err::OK;
     }
 
-    enums::Err Socket::recvHeader(Msg& msg) const
+    enums::Err Socket::recvHeader(Msg& msg)
     {
         using enum enet::enums::Err;
-        if(m_sockfd == ::INVAL_SOCK)
+        if(std::cmp_equal(m_sockfd, ::INVAL_SOCK))
         {
             elog::Error<"NET">("Invalid socket file descriptor");
             return INVAL_SOCK_FD;
@@ -459,24 +475,39 @@ namespace enet::structs
 
         MsgHeader header;
         int64_t msgSize = sizeof(MsgHeader);
-        if(int64_t bytesRecv = internal::Recv(m_sockfd, (char*)&header, static_cast<int>(msgSize), 0); bytesRecv == -1 || bytesRecv != msgSize)
+
+        int64_t bytesRecv = internal::Recv(m_sockfd, (char*)&header, static_cast<int>(msgSize), 0);
+        if (bool result = bytesRecv != msgSize; result)
         {
             auto [_, err] = internal::GetError();
-            if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
+            if (err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
                 return WOULD_NOT_BLOCK;
 
+            if(err == ::CONN_CLOSED || bytesRecv == 0)
+            {
+                close();
+                return DISCONNECTED;
+            }
+
             elog::Error<"NET">("Recv failed: Header");
-            return FAILED;
+            return RECV_HEADER_FAILED;
         }
 
         msg.header() = header;
+        msg.unpack();
+        if(msg.header().m_checksum != sizeof(MsgHeader))
+        {
+            elog::Error<"NET">("Invalid message header checksum");
+            return INVALID_MSG_CHECKSUM;
+        }
+
         return OK;
     }
 
-    enums::Err Socket::recvOrder(Msg& msg) const
+    enums::Err Socket::recvOrder(Msg& msg)
     {
         using enum enet::enums::Err;
-        if(m_sockfd == ::INVAL_SOCK)
+        if(std::cmp_equal(m_sockfd, ::INVAL_SOCK))
         {
             elog::Error<"NET">("Invalid socket file descriptor");
             return INVAL_SOCK_FD;
@@ -491,28 +522,36 @@ namespace enet::structs
         if(msg.header().m_msgOrderCount == 0)
             return OK;
 
+auto b = std::numeric_limits<size_t>::max();
         MsgOrder order;
         order.getOrder().resize(msg.header().m_msgOrderCount);
         int64_t msgSize = msg.header().m_msgOrderCount;
-
-        if(int64_t bytesRecv = internal::Recv(m_sockfd, (char*)order.getOrder().data(), static_cast<int>(msgSize), 0); bytesRecv == -1 || bytesRecv != msgSize)
+        int64_t bytesRecv = internal::Recv(m_sockfd, (char*)order.getOrder().data(), static_cast<int>(msgSize), 0);
+        
+        if(bytesRecv == -1 || bytesRecv != msgSize)
         {
             auto [_, err] = internal::GetError();
             if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
                 return WOULD_NOT_BLOCK;
 
+            if(err == ::CONN_CLOSED || bytesRecv == 0)
+            {
+                close();
+                return DISCONNECTED;
+            }
+        
             elog::Error<"NET">("Recv failed: Order");
-            return FAILED;
+            return RECV_ORDER_FAILED;
         }
 
         msg.order() = order;
         return OK;
     }
 
-    enums::Err Socket::recvPackages(Msg& msg) const
+    enums::Err Socket::recvPackages(Msg& msg)
     {
         using enum enet::enums::Err;
-        if(m_sockfd == ::INVAL_SOCK)
+        if(std::cmp_equal(m_sockfd, ::INVAL_SOCK))
         {
             elog::Error<"NET">("Invalid socket file descriptor");
             return INVAL_SOCK_FD;
@@ -539,6 +578,12 @@ namespace enet::structs
             if(current = internal::Recv(m_sockfd, (char*)package.m_data.data(), static_cast<int>(package.m_size), 0); current == -1)
                 break;
 
+            if(current == 0)
+            {
+                close();
+                return DISCONNECTED;
+            }
+
             bytesRecv += current;
             package.m_size = current;
             packages.push_back(package);
@@ -550,8 +595,14 @@ namespace enet::structs
             if(err == ::WOULD_NOT_BLOCK || err == EAGAIN || err == EWOULDBLOCK)
                 return WOULD_NOT_BLOCK;
 
+            if(err == ::CONN_CLOSED || bytesRecv == 0)
+            {
+                close();
+                return DISCONNECTED;
+            }
+
             elog::Error<"NET">("Recv failed: Packages");
-            return FAILED;
+            return RECV_PACKAGES_FAILED;
         }
 
         msg.addPackageList(packages);

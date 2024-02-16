@@ -51,6 +51,17 @@ namespace enet
             connections.emplace_back(client.value());
     }
 
+    void Server::updateConnections()
+    {
+        for (auto it = connections.begin(); it != connections.end();)
+        {
+            if (!it->isConnected())
+                it = connections.erase(it);
+            else
+                ++it;
+        }
+    }
+
     void Server::close()
     {
         for(auto& client : connections)
