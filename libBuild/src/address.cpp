@@ -1,4 +1,5 @@
 #include "address.hpp"
+#include "netwrapper.hpp"
 
 namespace enet
 {
@@ -18,16 +19,6 @@ namespace enet
 
     void Address::SetHost(std::string_view host)
     {
-        m_host = inet_addr(host.data());
-    }
-
-    void Address::SetHost(uint32_t host)
-    {
-        m_host = host;
-    }
-
-    void Address::SetPort(uint16_t port)
-    {
-        m_port = port;
+        m_host = ::inet_addr(host.data());
     }
 }
