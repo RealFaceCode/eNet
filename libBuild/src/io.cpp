@@ -1,6 +1,5 @@
 #include "io.hpp"
 #include "package.hpp"
-#include "netwrapper.hpp"
 #include "msg.hpp"
 #include "err.hpp"
 #include "msgorder.hpp"
@@ -26,7 +25,7 @@ namespace enet::internal
         header.m_checksum = ::ntohll(header.m_checksum);
     }
 
-    enums::Err SendHeader(int fd, structs::Msg& msg)
+    enums::Err SendHeader(socket_t fd, structs::Msg& msg)
     {
         using enum enet::enums::Err;
         SwapHeaderEndianHtoN(msg);
@@ -41,7 +40,7 @@ namespace enet::internal
         return OK;
     }
 
-    enums::Err RecvHeader(int fd, structs::Msg& msg)
+    enums::Err RecvHeader(socket_t fd, structs::Msg& msg)
     {
         using enum enet::enums::Err;
         auto& header = msg.header();
@@ -55,7 +54,7 @@ namespace enet::internal
         return OK;
     }
 
-    enums::Err SendOrder(int fd, structs::Msg& msg)
+    enums::Err SendOrder(socket_t fd, structs::Msg& msg)
     {
         using enum enet::enums::Err;
 
@@ -73,7 +72,7 @@ namespace enet::internal
         return OK;
     }
 
-    enums::Err RecvOrder(int fd, structs::Msg& msg)
+    enums::Err RecvOrder(socket_t fd, structs::Msg& msg)
     {
         using enum enet::enums::Err;
 
@@ -96,7 +95,7 @@ namespace enet::internal
         return OK;
     }
 
-    enums::Err SendPackages(int fd, structs::Msg& msg)
+    enums::Err SendPackages(socket_t fd, structs::Msg& msg)
     {
         using enum enet::enums::Err;
 
@@ -125,7 +124,7 @@ namespace enet::internal
         return OK;
     }
 
-    enums::Err RecvPackages(int fd, structs::Msg& msg)
+    enums::Err RecvPackages(socket_t fd, structs::Msg& msg)
     {
         using enum enet::enums::Err;
 
@@ -159,6 +158,34 @@ namespace enet::internal
             return RECV_PACKAGES_FAILED;
 
         msg.addPackageList(packages);
+
+        return OK;
+    }
+
+    enums::Err SendMsg(socket_t fd, structs::Msg& msg)
+    {
+        using enum enet::enums::Err;
+
+        if(auto result = SendHeader(fd, msg); result != OK)
+            return result;
+        if(auto result = SendOrder(fd, msg); result != OK)
+            return result;
+        if(auto result = SendPackages(fd, msg); result != OK)
+            return result;
+
+        return OK;
+    }
+
+    enums::Err RecvMsg(socket_t fd, structs::Msg& msg)
+    {
+        using enum enet::enums::Err;
+
+        if(auto result = RecvHeader(fd, msg); result != OK)
+            return result;
+        if(auto result = RecvOrder(fd, msg); result != OK)
+            return result;
+        if(auto result = RecvPackages(fd, msg); result != OK)
+            return result;
 
         return OK;
     }
